@@ -12,9 +12,9 @@ import com.badlogic.gdx.utils.TimeUtils;
 
 public class Nave extends Personaje{
 
-    public static final int TIEMPO_ENTRE_BALAS = 500;
-    public static final int TIEMPO_RECARGA = 2000;
-    public static final int BALAS_CARGADOR = 10;
+    public static int CADENCIA = 500;
+    public static int TIEMPO_RECARGA = 2000;
+    public static int BALAS_CARGADOR = 10;
     private int cargador;
     private boolean puedeDisparar;
     private long momentoUltimaRecarga, momentoUltimoDisparo;
@@ -22,6 +22,8 @@ public class Nave extends Personaje{
     private int nivel;
     public static int MIN_GENERAR_ENEMIGO;
     public static int MAX_GENERAR_ENEMIGO;
+    public static int MIN_GENERAR_POWER_UP;
+    public static int MAX_GENERAR_POWER_UP;
 
 
     public Nave(int vidas, int velocidad, Vector2 posicion, Array<TextureRegion> ... textureRegionArray){
@@ -31,8 +33,11 @@ public class Nave extends Personaje{
         puedeDisparar = true;
         momentoUltimoDisparo = TimeUtils.millis();
         nivel = 0;
-        MIN_GENERAR_ENEMIGO = 1000;
-        MAX_GENERAR_ENEMIGO = 2000;
+        MIN_GENERAR_ENEMIGO = 500;
+        MAX_GENERAR_ENEMIGO = 1000;
+
+        MIN_GENERAR_POWER_UP = 8000;
+        MAX_GENERAR_POWER_UP = 15000;
     }
 
 

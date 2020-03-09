@@ -6,8 +6,10 @@ import com.badlogic.gdx.utils.Array;
 
 public class Enemigo extends  Personaje{
 
-    public Enemigo(int vidas, int velocidad, Vector2 posicion, Array<TextureRegion> textureRegionArrayEnemigo){
-        super(vidas, velocidad, posicion, textureRegionArrayEnemigo);
+    public static int VELOCIDAD_ENEMIGO = 5;
+
+    public Enemigo(int vidas,Vector2 posicion, Array<TextureRegion> textureRegionArrayEnemigo){
+        super(vidas, VELOCIDAD_ENEMIGO, posicion, textureRegionArrayEnemigo);
     }
 
 

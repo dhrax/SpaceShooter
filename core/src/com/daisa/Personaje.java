@@ -24,10 +24,19 @@ public class Personaje {
     private TextureRegion frameActual;
     private float stateTime;
 
-
-
     public Personaje(int vidas, int velocidad, Vector2 posicion, Array<TextureRegion> ... textureRegionArray ) {
         this.vidas = vidas;
+        this.velocidad = velocidad;
+        this.posicion = posicion;
+
+        inicializarAnimaciones(textureRegionArray);
+        estado = Estados.QUIETO;
+
+        rect = new Rectangle(posicion.x, posicion.y, textureRegionArrayAbajo.get(0).getRegionWidth() , textureRegionArrayAbajo.get(0).getRegionHeight());
+    }
+
+    public Personaje(int velocidad, Vector2 posicion, Array<TextureRegion> ... textureRegionArray ) {
+        this.vidas = 0;
         this.velocidad = velocidad;
         this.posicion = posicion;
 
@@ -135,5 +144,4 @@ public class Personaje {
                 break;
         }
     }
-
 }

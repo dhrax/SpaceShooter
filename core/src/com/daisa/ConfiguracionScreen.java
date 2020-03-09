@@ -49,7 +49,7 @@ public class ConfiguracionScreen implements Screen {
             }
         });
 
-        VisTextButton volver = new VisTextButton("Volver");
+        Image volver = new Image(new Texture(Gdx.files.internal("Screen/Classic/back_button.png")));
         volver.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event,  float x, float y) {
@@ -62,7 +62,7 @@ public class ConfiguracionScreen implements Screen {
         table.row();
         table.add(checkBoxSonido).width(300);
         table.row();
-        table.add(volver).width(300).height(50);
+        table.add(volver);
 
         Gdx.input.setInputProcessor(stage);
 

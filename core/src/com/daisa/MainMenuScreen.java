@@ -36,7 +36,7 @@ public class MainMenuScreen implements Screen {
         table.setFillParent(true);
         stage.addActor(table);
 
-        Image playButton = new Image(new Texture(Gdx.files.internal("Screen/play_button.png")));
+        Image playButton = new Image(new Texture(Gdx.files.internal("Screen/Classic/play_button.png")));
 
         playButton.addListener(new ClickListener() {
             @Override
@@ -46,7 +46,7 @@ public class MainMenuScreen implements Screen {
             }
         });
 
-        Image configButton = new Image(new Texture(Gdx.files.internal("Screen/options_button.png")));
+        Image configButton = new Image(new Texture(Gdx.files.internal("Screen/Classic/options_button.png")));
 
         configButton.addListener(new ClickListener() {
             @Override
@@ -56,7 +56,7 @@ public class MainMenuScreen implements Screen {
             }
         });
 
-        Image quitButton = new Image(new Texture(Gdx.files.internal("Screen/exit_button.png")));
+        Image quitButton = new Image(new Texture(Gdx.files.internal("Screen/Classic/exit_button.png")));
 
         quitButton.addListener(new ClickListener() {
             @Override
