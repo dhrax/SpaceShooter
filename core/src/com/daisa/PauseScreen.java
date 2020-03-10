@@ -45,6 +45,17 @@ public class PauseScreen implements Screen {
             }
         });
 
+        Image backHome = new Image(new Texture(Gdx.files.internal("Screen/Classic/home_button.png")));
+
+        backHome.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                juego.setScreen(new MainMenuScreen(juego));
+
+                VisUI.dispose();
+            }
+        });
+
         Image quitButton = new Image(new Texture(Gdx.files.internal("Screen/Classic/exit_button.png")));
 
         quitButton.addListener(new ClickListener() {
@@ -58,6 +69,8 @@ public class PauseScreen implements Screen {
         // Añade filas a la tabla y añade los componentes
         table.row();
         table.add(backButton);
+        table.row();
+        table.add(backHome);
         table.row();
         table.add(quitButton);
 

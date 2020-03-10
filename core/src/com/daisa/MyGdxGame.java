@@ -30,7 +30,6 @@ public class MyGdxGame implements Screen {
     long ultimoEnemigo;
     int siguientePowerUp;
     long ultimoPowerUp;
-    Music music;
     Sound sonidoDisparo;
 
     private Array<TextureRegion> textureRegionArrayNaveDerecha = new Array<>();
