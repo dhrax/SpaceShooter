@@ -14,6 +14,7 @@ public class Juego extends Game {
     public void create() {
         batch= new SpriteBatch();
         font = new BitmapFont(Gdx.files.internal("Font/fuente2.fnt"), false);
+        ConfigurationManager.prefs.putBoolean("sonido", true);
         setScreen(new MainMenuScreen(this));
     }
 }
