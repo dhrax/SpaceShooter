@@ -24,6 +24,7 @@ public class Nave extends Personaje {
     public static int MAX_GENERAR_ENEMIGO;
     public static int MIN_GENERAR_POWER_UP;
     public static int MAX_GENERAR_POWER_UP;
+    public static int NUM_ENEMIGOS_BOSS = 15;
 
 
     public Nave(int vidas, int velocidad, Vector2 posicion, Array<TextureRegion>... textureRegionArray) {

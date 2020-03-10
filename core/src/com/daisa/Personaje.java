@@ -54,7 +54,10 @@ public class Personaje {
 
         if (textureRegionArray.length == 1){
             textureRegionArrayAbajo = textureRegionArray[0];
-            animacionAbajo = new Animation(0.25f, textureRegionArrayAbajo);
+            animacionAbajo = new Animation(0.25f, textureRegionArray[0]);
+            animacionArriba = new Animation(0.25f, textureRegionArray[0]);
+            animacionDerecha = new Animation(0.25f, textureRegionArray[0]);
+            animacionIzquierda = new Animation(0.25f, textureRegionArray[0]);
         }else{
             textureRegionArrayDerecha = textureRegionArray[0];
             textureRegionArrayIzquierda = textureRegionArray[1];

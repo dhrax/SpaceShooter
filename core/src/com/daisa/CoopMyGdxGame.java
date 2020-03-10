@@ -8,7 +8,6 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -16,12 +15,13 @@ import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.Random;
 
-public class MyGdxGame implements Screen {
+public class CoopMyGdxGame implements Screen {
 
     Juego juego;
-    Nave nave;
+    Nave nave, nave2;
     Array<Enemigo> enemigoArray;
     Array<Bala> balasArray;
+    Array<Bala> balasArray2;
     Array<PowerUp> powerUpArray;
     Random rand = new Random();
 
@@ -41,13 +41,17 @@ public class MyGdxGame implements Screen {
     private Array<TextureRegion> textureRegionArrayEnemigoRojo = new Array<>();
     private Array<TextureRegion> textureRegionArrayEnemigoAzul = new Array<>();
 
+    private Array<TextureRegion> textureRegionArrayNave2 = new Array<>();
+
     private Array<Texture> textureArrayPowerUp = new Array<>();
 
-    public MyGdxGame(Juego juego) {
+    public CoopMyGdxGame(Juego juego) {
         this.juego = juego;
 
         enemigoArray = new Array<>();
         balasArray = new Array<>();
+        balasArray2 = new Array<>();
+
         powerUpArray = new Array<>();
 
         sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("Music/Sound/proton__shot.ogg"));
@@ -56,7 +60,8 @@ public class MyGdxGame implements Screen {
 
         inicializarArraysTexturas();
 
-        nave = new Nave(2, 5, new Vector2(Constantes.CENTRO_HORIZONTAL_PANTALLA, 0), textureRegionArrayNaveDerecha, textureRegionArrayNaveIzquierda, textureRegionArrayNaveArriba, textureRegionArrayNaveAbajo);
+        nave = new Nave(2, 5, new Vector2(Constantes.CENTRO_HORIZONTAL_PANTALLA+50, 0), textureRegionArrayNaveDerecha, textureRegionArrayNaveIzquierda, textureRegionArrayNaveArriba, textureRegionArrayNaveAbajo);
+        nave2 = new Nave(2, 5, new Vector2(Constantes.CENTRO_HORIZONTAL_PANTALLA-50, 0), textureRegionArrayNave2);
 
         siguienteEnemigo = rand.nextInt(Nave.MAX_GENERAR_ENEMIGO) + Nave.MIN_GENERAR_ENEMIGO;
         ultimoEnemigo = TimeUtils.millis();
@@ -93,6 +98,8 @@ public class MyGdxGame implements Screen {
         textureRegionArrayNaveAbajo.add(new Sprite(new Texture(Gdx.files.internal("Animation/naveNegraAbajo1.png"))));
         textureRegionArrayNaveAbajo.add(new Sprite(new Texture(Gdx.files.internal("Animation/naveNegraAbajo2.png"))));
 
+        textureRegionArrayNave2.add(new Sprite(new Texture(Gdx.files.internal("Animation/nave2.png"))));
+
         textureArrayPowerUp.add(new Texture(Gdx.files.internal("PowerUp/reducir_cadencia.png")));
         textureArrayPowerUp.add(new Texture(Gdx.files.internal("PowerUp/aumenta_salud.png")));
         textureArrayPowerUp.add(new Texture(Gdx.files.internal("PowerUp/limpiar_enemigos.png")));
@@ -101,8 +108,11 @@ public class MyGdxGame implements Screen {
     }
 
     private void restart() {
-        nave.inicializar(2, new Vector2(Constantes.CENTRO_HORIZONTAL_PANTALLA - textureRegionArrayNaveAbajo.get(0).getRegionWidth() / 2f, 0));
+        nave.inicializar(2, new Vector2(Constantes.CENTRO_HORIZONTAL_PANTALLA -50, 0));
+        nave2.inicializar(2, new Vector2(Constantes.CENTRO_HORIZONTAL_PANTALLA +50, 0));
         balasArray.clear();
+        balasArray2.clear();
+
         enemigoArray.clear();
     }
 
@@ -162,6 +172,32 @@ public class MyGdxGame implements Screen {
                     estado = Estados.FIN_JUEGO;
             }
         }
+
+        //Limites pantalla nave 2
+        if (nave2.getPosicion().x < 0)
+            nave2.setPosicion(new Vector2(0, nave2.getPosicion().y));
+
+        if (nave2.getPosicion().x > Constantes.ANCHO_PANTALLA - nave2.getFrameActual().getRegionWidth())
+            nave2.setPosicion(new Vector2(Constantes.ANCHO_PANTALLA - nave2.getFrameActual().getRegionWidth(), nave2.getPosicion().y));
+
+        if (nave2.getPosicion().y > Constantes.ALTO_PANTALLA - nave2.getFrameActual().getRegionHeight())
+            nave2.setPosicion(new Vector2(nave2.getPosicion().x, Constantes.ALTO_PANTALLA - nave2.getFrameActual().getRegionHeight()));
+
+        if (nave2.getPosicion().y < 0)
+            nave2.setPosicion(new Vector2(nave2.getPosicion().x, 0));
+
+        for (Bala bala : balasArray2)
+            if (bala.getPosicion().y > Constantes.ALTO_PANTALLA)
+                balasArray2.removeValue(bala, true);
+
+        for (Enemigo enemigo : enemigoArray) {
+            if (enemigo.getPosicion().y < 0) {
+                enemigoArray.removeValue(enemigo, true);
+                nave2.setVidas(nave2.getVidas() - 1);
+                if (nave2.comprobarVida())
+                    estado = Estados.FIN_JUEGO;
+            }
+        }
     }
 
     private void comprobarColisiones() {
@@ -171,7 +207,6 @@ public class MyGdxGame implements Screen {
                     enemigoArray.removeValue(enemigo, true);
                     balasArray.removeValue(bala, true);
                     nave.setPuntuacion(nave.getPuntuacion() + 1);
-                    //Se sube de nivel cada 5 puntos
                     if (nave.getPuntuacion() == Nave.NUM_ENEMIGOS_BOSS) {
                         nave.setNivel(1);
                         estado = Estados.LVL2;
@@ -184,6 +219,28 @@ public class MyGdxGame implements Screen {
                     enemigoArray.removeValue(enemigo, true);
                     nave.setVidas(nave.getVidas() - 1);
                     if (nave.comprobarVida()) {
+                        estado = Estados.FIN_JUEGO;
+                    }
+                }
+            }
+            for (Bala bala : balasArray2) {
+                if (bala.rect.overlaps(enemigo.rect)) {
+                    enemigoArray.removeValue(enemigo, true);
+                    balasArray2.removeValue(bala, true);
+                    nave2.setPuntuacion(nave2.getPuntuacion() + 1);
+                    //Se sube de nivel cada 5 puntos
+                    if (nave2.getPuntuacion() == Nave.NUM_ENEMIGOS_BOSS) {
+                        nave2.setNivel(1);
+                        estado = Estados.LVL2;
+                        juego.setScreen(new LevelUp(juego, nave2));
+                        this.dispose();
+
+                    }
+                }
+                if (nave2.rect.overlaps(enemigo.rect)) {
+                    enemigoArray.removeValue(enemigo, true);
+                    nave2.setVidas(nave2.getVidas() - 1);
+                    if (nave2.comprobarVida()) {
                         estado = Estados.FIN_JUEGO;
                     }
                 }
@@ -218,6 +275,34 @@ public class MyGdxGame implements Screen {
                 }
                 powerUpArray.removeValue(powerUp, true);
             }
+            if (nave2.rect.overlaps(powerUp.rect)) {
+                switch (powerUp.tipo) {
+                    case 0:
+                        if (Nave.CADENCIA > 100) {
+                            Nave.CADENCIA -= 100;
+                        }
+                        break;
+                    case 1:
+                        nave2.setVidas(nave2.getVidas() + 1);
+                        break;
+                    case 2:
+                        enemigoArray.clear();
+                        break;
+                    case 3:
+                        if (Enemigo.VELOCIDAD_ENEMIGO > 1) {
+                            Enemigo.VELOCIDAD_ENEMIGO--;
+                            for (Enemigo enemigo : enemigoArray) {
+                                enemigo.setVelocidad(Enemigo.VELOCIDAD_ENEMIGO);
+                            }
+                        }
+
+                        break;
+                    case 4:
+                        nave2.setVelocidad(nave2.getVelocidad() + 1);
+                        break;
+                }
+                powerUpArray.removeValue(powerUp, true);
+            }
         }
     }
 
@@ -246,15 +331,11 @@ public class MyGdxGame implements Screen {
     public void acionesTeclado(float dt) {
 
         nave.update(dt);
+        nave2.update(dt);
         //Si estamos en el menu de inicio y pulsamos ENTER, jugamos
         if (estado == Estados.FIN_JUEGO && Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
             restart();
             estado = Estados.JUGANDO;
-        }
-        //Si estamos jugando y pulsamos ESCAPE, vamos a menu de pausa
-        if (estado == Estados.JUGANDO && Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            estado = Estados.PAUSA;
-            juego.setScreen(new PauseScreen(juego, this));
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.ANY_KEY)) {
@@ -274,7 +355,7 @@ public class MyGdxGame implements Screen {
                 nave.estado = Nave.Estados.ABAJO;
                 nave.moverAbajo();
             }
-            if (Gdx.input.isKeyPressed(Input.Keys.R)) {
+            if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)) {
                 nave.setPuedeDisparar(false);
                 nave.setMomentoUltimaRecarga(TimeUtils.millis());
                 nave.recargar();
@@ -284,8 +365,36 @@ public class MyGdxGame implements Screen {
             else if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
                 disparar();
             }
+            //Nave2
+            if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+                nave2.estado = Nave.Estados.DERECHA;
+                nave2.moverDerecha();
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+                nave2.estado = Nave.Estados.IZQUIERDA;
+                nave2.moverIzquierda();
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+                nave2.estado = Nave.Estados.ARRIBA;
+                nave2.moverArriba();
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+                nave2.estado = Nave.Estados.ABAJO;
+                nave2.moverAbajo();
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.R)) {
+                nave2.setPuedeDisparar(false);
+                nave2.setMomentoUltimaRecarga(TimeUtils.millis());
+                nave2.recargar();
+            }
+            if (!nave2.isPuedeDisparar())
+                nave2.recargar();
+            else if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)) {
+                disparar2();
+            }
         } else {
             nave.estado = Nave.Estados.QUIETO;
+            nave2.estado = Nave.Estados.QUIETO;
         }
 
     }
@@ -306,6 +415,24 @@ public class MyGdxGame implements Screen {
                 nave.setMomentoUltimaRecarga(TimeUtils.millis());
             }
         }
+
+    }
+    public void disparar2() {
+        if (TimeUtils.millis() - nave2.getMomentoUltimoDisparo() > Nave.CADENCIA) {
+            float posX = nave2.getPosicion().x + nave2.getFrameActual().getRegionWidth() / 2f - textureRegionArrayBala.get(0).getRegionWidth();
+            float posY = nave2.getPosicion().y + nave2.getFrameActual().getRegionHeight();
+            Bala bala = new Bala(8, new Vector2(posX, posY), textureRegionArrayBala);
+            bala.estado = Personaje.Estados.ABAJO;
+            balasArray2.add(bala);
+            if (ConfigurationManager.isSoundEnabled())
+                sonidoDisparo.play();
+            nave2.setCargador(nave2.getCargador() - 1);
+            nave2.setMomentoUltimoDisparo(TimeUtils.millis());
+            if (nave2.getCargador() <= 0) {
+                nave2.setPuedeDisparar(false);
+                nave2.setMomentoUltimaRecarga(TimeUtils.millis());
+            }
+        }
     }
 
     public void moverNPCs(float dt) {
@@ -318,6 +445,12 @@ public class MyGdxGame implements Screen {
             bala.update(dt);
             bala.moverArriba();
         }
+
+        for (Bala bala : balasArray2) {
+            bala.update(dt);
+            bala.moverArriba();
+        }
+
         for (PowerUp powerUp : powerUpArray) {
             powerUp.moverAbajo();
         }
@@ -331,18 +464,29 @@ public class MyGdxGame implements Screen {
         juego.batch.begin();
         //IF que decide si se pinta el menu del juego o el del menu de inicio
         if (estado == Estados.JUGANDO) {
-            juego.font.draw(juego.batch, "Vidas: " + nave.getVidas(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight());
-            juego.font.draw(juego.batch, "Puntuacion: " + nave.getPuntuacion(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 3);
-            juego.font.draw(juego.batch, "Nivel: " + nave.getNivel(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 7);
+            juego.font.draw(juego.batch, "Vidas: " + nave2.getVidas(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight());
+            juego.font.draw(juego.batch, "Puntuacion: " + nave2.getPuntuacion(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 3);
+            juego.font.draw(juego.batch, "Vidas: " + nave.getVidas(), Constantes.ANCHO_PANTALLA - 240, Constantes.ALTO_PANTALLA - juego.font.getXHeight());
+            juego.font.draw(juego.batch, "Puntuacion: " + nave.getPuntuacion(), Constantes.ANCHO_PANTALLA - 240, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 3);
+
             if (nave.isPuedeDisparar())
-                juego.font.draw(juego.batch, "Cargador: " + nave.getCargador(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 9);
+                juego.font.draw(juego.batch, "Cargador: " + nave2.getCargador(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 9);
             else
                 juego.font.draw(juego.batch, "Recargando...", 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 9);
 
+            if (nave2.isPuedeDisparar())
+                juego.font.draw(juego.batch, "Cargador: " + nave.getCargador(), Constantes.ANCHO_PANTALLA -240, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 9);
+            else
+                juego.font.draw(juego.batch, "Recargando...", Constantes.ANCHO_PANTALLA - juego.font.getXHeight(), Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 9);
+
             nave.pintar(juego.batch);
+            nave2.pintar(juego.batch);
+
             for (Enemigo enemigo : enemigoArray)
                 enemigo.pintar(juego.batch);
             for (Bala bala : balasArray)
+                bala.pintar(juego.batch);
+            for (Bala bala : balasArray2)
                 bala.pintar(juego.batch);
             for (PowerUp powerUp : powerUpArray)
                 powerUp.pintar(juego.batch);
@@ -382,9 +526,11 @@ public class MyGdxGame implements Screen {
         powerUpArray.clear();
         enemigoArray.clear();
         balasArray.clear();
+        balasArray2.clear();
         textureRegionArrayBala.clear();
         textureRegionArrayEnemigoRojo.clear();
         textureRegionArrayEnemigoAzul.clear();
+        sonidoDisparo.dispose();
 
     }
 

@@ -46,6 +46,16 @@ public class MainMenuScreen implements Screen {
             }
         });
 
+        Image coopButton = new Image(new Texture(Gdx.files.internal("Screen/Classic/coop_button.png")));
+
+        coopButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                juego.setScreen(new CoopMyGdxGame(juego));
+                VisUI.dispose();
+            }
+        });
+
         Image configButton = new Image(new Texture(Gdx.files.internal("Screen/Classic/options_button.png")));
 
         configButton.addListener(new ClickListener() {
@@ -66,13 +76,17 @@ public class MainMenuScreen implements Screen {
             }
         });
 
+
         // Añade filas a la tabla y añade los componentes
         table.row();
         table.add(playButton);
         table.row();
+        table.add(coopButton);
+        table.row();
         table.add(configButton);
         table.row();
         table.add(quitButton);
+
 
         Gdx.input.setInputProcessor(stage);
     }
