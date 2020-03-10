@@ -47,7 +47,7 @@ public class Personaje {
     }
 
     public enum Estados{
-        ARRIBA, ABAJO, DERECHA, IZQUIERDA, QUIETO
+        ARRIBA, ABAJO, DERECHA, IZQUIERDA, QUIETO, MUERTO
     }
 
     private void inicializarAnimaciones(Array<TextureRegion>[] textureRegionArray) {
@@ -101,7 +101,7 @@ public class Personaje {
         this.posicion = posicion;
     }
 
-    private void mover(Vector2 direccion) {
+    public void mover(Vector2 direccion) {
         posicion.add(direccion.scl(velocidad));
         rect.setPosition(posicion);
     }

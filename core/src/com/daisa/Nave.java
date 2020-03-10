@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
-public class Nave extends Personaje{
+public class Nave extends Personaje {
 
     public static int CADENCIA = 500;
     public static int TIEMPO_RECARGA = 2000;
@@ -26,10 +26,10 @@ public class Nave extends Personaje{
     public static int MAX_GENERAR_POWER_UP;
 
 
-    public Nave(int vidas, int velocidad, Vector2 posicion, Array<TextureRegion> ... textureRegionArray){
+    public Nave(int vidas, int velocidad, Vector2 posicion, Array<TextureRegion>... textureRegionArray) {
         super(vidas, velocidad, posicion, textureRegionArray);
         cargador = BALAS_CARGADOR;
-        puntuacion=0;
+        puntuacion = 0;
         puedeDisparar = true;
         momentoUltimoDisparo = TimeUtils.millis();
         nivel = 0;
@@ -93,7 +93,7 @@ public class Nave extends Personaje{
      * Se recargan las balas si ha pasado el tiempo requerido desde la ultima recarga
      */
     public void recargar() {
-        if (TimeUtils.millis() - momentoUltimaRecarga > TIEMPO_RECARGA){
+        if (TimeUtils.millis() - momentoUltimaRecarga > TIEMPO_RECARGA) {
             this.puedeDisparar = true;
             this.setCargador(BALAS_CARGADOR);
             momentoUltimaRecarga = TimeUtils.millis();
@@ -102,10 +102,11 @@ public class Nave extends Personaje{
 
     /**
      * Se inicializan los datos para empezar una nueva partida
+     *
      * @param vidas
      * @param posicion
      */
-    public void inicializar(int vidas, Vector2 posicion){
+    public void inicializar(int vidas, Vector2 posicion) {
         super.setVidas(vidas);
         super.setPosicion(posicion);
         super.rect.setPosition(posicion);
@@ -119,14 +120,16 @@ public class Nave extends Personaje{
 
     /**
      * Devuelve si el jugador sigue vivo o no
+     *
      * @return
      */
-    public boolean comprobarVida(){
+    public boolean comprobarVida() {
         return this.getVidas() <= 0;
     }
 
     /**
      * Si se sube de nivel, se reduce el tiempo en el que aparecen los enemigos, para hacer el juego más difícil
+     *
      * @param i
      */
     public void subirNivel(int i) {

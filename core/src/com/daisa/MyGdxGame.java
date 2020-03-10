@@ -19,7 +19,6 @@ import java.util.Random;
 public class MyGdxGame implements Screen {
 
     Juego juego;
-    SpriteBatch batch;
     Nave nave;
     Array<Enemigo> enemigoArray;
     Array<Bala> balasArray;
@@ -46,12 +45,10 @@ public class MyGdxGame implements Screen {
 
     public MyGdxGame(Juego juego) {
         this.juego = juego;
-        batch = new SpriteBatch();
 
         enemigoArray = new Array<>();
         balasArray = new Array<>();
         powerUpArray = new Array<>();
-
 
         sonidoDisparo = Gdx.audio.newSound(Gdx.files.internal("Music/Sound/proton__shot.ogg"));
 
@@ -175,9 +172,12 @@ public class MyGdxGame implements Screen {
                     balasArray.removeValue(bala, true);
                     nave.setPuntuacion(nave.getPuntuacion() + 1);
                     //Se sube de nivel cada 5 puntos
-                    if (nave.getPuntuacion() == 30) {
+                    if (nave.getPuntuacion() == 1) {
                         nave.setNivel(1);
-                        //nave.subirNivel(nave.getNivel());
+                        estado = Estados.LVL2;
+                        juego.setScreen(new LevelUp(juego, nave));
+                        this.dispose();
+
                     }
                 }
                 if (nave.rect.overlaps(enemigo.rect)) {
@@ -204,9 +204,9 @@ public class MyGdxGame implements Screen {
                         enemigoArray.clear();
                         break;
                     case 3:
-                        if(Enemigo.VELOCIDAD_ENEMIGO>1){
+                        if (Enemigo.VELOCIDAD_ENEMIGO > 1) {
                             Enemigo.VELOCIDAD_ENEMIGO--;
-                            for (Enemigo enemigo : enemigoArray){
+                            for (Enemigo enemigo : enemigoArray) {
                                 enemigo.setVelocidad(Enemigo.VELOCIDAD_ENEMIGO);
                             }
                         }
@@ -251,7 +251,7 @@ public class MyGdxGame implements Screen {
             restart();
             estado = Estados.JUGANDO;
         }
-        //Si estamos jugando y pulsamos ESCAPE, vamos a menu de inicio
+        //Si estamos jugando y pulsamos ESCAPE, vamos a menu de pausa
         if (estado == Estados.JUGANDO && Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             estado = Estados.PAUSA;
             juego.setScreen(new PauseScreen(juego, this));
@@ -328,36 +328,28 @@ public class MyGdxGame implements Screen {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        batch.begin();
+        juego.batch.begin();
         //IF que decide si se pinta el menu del juego o el del menu de inicio
         if (estado == Estados.JUGANDO) {
-            juego.font.draw(batch, "Vidas: " + nave.getVidas(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight());
-            juego.font.draw(batch, "Puntuacion: " + nave.getPuntuacion(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 3);
-            juego.font.draw(batch, "Nivel: " + nave.getNivel(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 7);
+            juego.font.draw(juego.batch, "Vidas: " + nave.getVidas(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight());
+            juego.font.draw(juego.batch, "Puntuacion: " + nave.getPuntuacion(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 3);
+            juego.font.draw(juego.batch, "Nivel: " + nave.getNivel(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 7);
             if (nave.isPuedeDisparar())
-                juego.font.draw(batch, "Cargador: " + nave.getCargador(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 9);
+                juego.font.draw(juego.batch, "Cargador: " + nave.getCargador(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 9);
             else
-                juego.font.draw(batch, "Recargando...", 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 9);
+                juego.font.draw(juego.batch, "Recargando...", 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 9);
 
-
-            nave.pintar(batch);
+            nave.pintar(juego.batch);
             for (Enemigo enemigo : enemigoArray)
-                enemigo.pintar(batch);
+                enemigo.pintar(juego.batch);
             for (Bala bala : balasArray)
-                bala.pintar(batch);
+                bala.pintar(juego.batch);
             for (PowerUp powerUp : powerUpArray)
-                powerUp.pintar(batch);
-        } else {
-			/*juego.font.draw(batch, "Fin del JUEGO", 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight());
-			juego.font.draw(batch, "Puntuacion: " + nave.getPuntuacion(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 3);
-			juego.font.draw(batch, "Tiempo de Recarga: " + Nave.TIEMPO_RECARGA, 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 5);
-			juego.font.draw(batch, "Cadencia: " + Nave.TIEMPO_ENTRE_BALAS, 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 7);
-			juego.font.draw(batch, "Nivel: " + nave.getNivel(), 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 9);
-			juego.font.draw(batch, "Pulse Enter para volver a Jugar", 0, Constantes.ALTO_PANTALLA - juego.font.getXHeight() * 11);*/
-
+                powerUp.pintar(juego.batch);
+        } else if (estado == Estados.FIN_JUEGO) {
             juego.setScreen(new MainMenuScreen(juego));
         }
-        batch.end();
+        juego.batch.end();
     }
 
     @Override
@@ -387,10 +379,16 @@ public class MyGdxGame implements Screen {
 
     @Override
     public void dispose() {
-        batch.dispose();
+        powerUpArray.clear();
+        enemigoArray.clear();
+        balasArray.clear();
+        textureRegionArrayBala.clear();
+        textureRegionArrayEnemigoRojo.clear();
+        textureRegionArrayEnemigoAzul.clear();
+
     }
 
     public enum Estados {
-        JUGANDO, FIN_JUEGO, PAUSA
+        JUGANDO, FIN_JUEGO, PAUSA, LVL2
     }
 }

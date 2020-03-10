@@ -34,26 +34,6 @@ public class PauseScreen implements Screen {
         table.setFillParent(true);
         stage.addActor(table);
 
-        Image playButton = new Image(new Texture(Gdx.files.internal("Screen/Classic/play_button.png")));
-
-        playButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                juego.setScreen(new MyGdxGame(juego));
-                dispose();
-            }
-        });
-
-        Image configButton = new Image(new Texture(Gdx.files.internal("Screen/Classic/options_button.png")));
-
-        configButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                juego.setScreen(new ConfiguracionScreen(juego));
-                dispose();
-            }
-        });
-
         Image backButton = new Image(new Texture(Gdx.files.internal("Screen/Classic/back_button.png")));
 
         backButton.addListener(new ClickListener() {
@@ -76,10 +56,6 @@ public class PauseScreen implements Screen {
         });
 
         // Añade filas a la tabla y añade los componentes
-        table.row();
-        table.add(playButton);
-        table.row();
-        table.add(configButton);
         table.row();
         table.add(backButton);
         table.row();
